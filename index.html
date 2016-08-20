@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Auth0</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <main class="container" ng-view></main>
+
+    <!-- RESOURCE UTAMA -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/df-number-format/2.1.6/jquery.number.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- ANGULAR RESOURCE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular-route.min.js"></script>
+
+    <script src="https://cdn.auth0.com/js/lock-9.0.js"></script>
+    <script src="https://cdn.auth0.com/w2/auth0-angular-4.js"></script>
+    <script src="https://cdn.rawgit.com/auth0/angular-jwt/master/dist/angular-jwt.js"></script>
+
+
+    <!-- RESOURCE TAMBAHAN -->
+    <script type="text/javascript">
+        var myApp = angular.module("myApp", ["auth0", "ngRoute"])
+            .config(function($routeProvider, authProvider) {
+                authProvider.init({
+                    clientID: 'bRkXZnKoYYJ1pEfISajOnQ8w0NqL7D5l',
+                    domain: 'perabotandapur.auth0.com',
+                    loginUrl: '/login'
+                });
+                $routeProvider
+                    .when("/dashboard", {
+                        templateUrl: "dashboard.html",
+                        controller: "dashboardCtrl",
+                        requiresLogin: true
+                    })
+                    .when("/login", {
+                        templateUrl: "login.html",
+                        controller: "loginCtrl"
+                    })
+                    .otherwise({
+                        redirectTo: "/login"
+                    });
+            })
+            .run(function(auth) {
+                auth.hookEvents();
+            })
+            .controller("dashboardCtrl", function($scope, auth) {
+              $scope.profile = auth.profile;
+            })
+            .controller("loginCtrl", function($scope, auth, $location) {
+                $scope.signin = function() {
+                    auth.signin({
+                        authParams: {
+                            scope: 'openid name email' // Specify the scopes you want to retrieve
+                        }
+                    }, function(profile, idToken, accessToken, state, refreshToken) {
+                        console.log("profile", profile);
+                        console.log("idToken", idToken);
+                        console.log("accessToken", accessToken);
+                        console.log("state", state);
+                        console.log("refreshToken", refreshToken);
+                        $location.path('/dashboard')
+                    }, function(err) {
+                        console.log("Error :(", err);
+                    });
+                }
+            });
+    </script>
+</body>
+
+</html>
