@@ -58,6 +58,9 @@
             })
             .controller("dashboardCtrl", function($scope, auth) {
               $scope.profile = auth.profile;
+              $scope.signout = function() {
+                auth.signout();
+              }
             })
             .controller("loginCtrl", function($scope, auth, $location) {
                 $scope.signin = function() {
